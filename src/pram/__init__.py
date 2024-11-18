@@ -70,15 +70,32 @@ def settling_time(displacement, velocity):
     time = displacement/velocity
     return time
 
+def all_in_one_return_vals_new(
+        total_radius_km,
+        core_radius_km,
+        density_mantle,
+        density_core):
+    total_radius = total_radius_km * 1000.0
+    core_radius = core_radius_km * 1000.0
+    radii = np.linspace(core_radius+1, total_radius+1)
+    radii_in_km = radii/1000
+    dens_contrast = density_core - density_mantle
+    mass_list = total_mass_at_r(core_radius, radii, density_core, density_mantle)
+    gravity_list = gravity_at_r(radii, mass_list)
+    radii_core = np.linspace(1000, core_radius+1)
+    gravity_core = grav_in_core(radii_core, density_core)
+    core_radii_km = radii_core/1000
+    return {"Core radii": core_radii_km,
+            "Radii": radii_in_km,
+            "Mass list": mass_list,
+            "Grav list": gravity_list,
+            "Gravity core": gravity_core}
 
 def all_in_one_return_vals(
         total_radius_km,
         core_radius_km,
         density_mantle,
-        density_core,
-        particle_diam,
-        dynamic_visc,
-        settling_disp_m):
+        density_core):
     total_radius = total_radius_km * 1000.0
     core_radius = core_radius_km * 1000.0
     radii = np.arange(core_radius+1, total_radius+1)
@@ -89,13 +106,11 @@ def all_in_one_return_vals(
     radii_core = np.linspace(1000, core_radius+1)
     gravity_core = grav_in_core(radii_core, density_core)
     core_radii_km = radii_core/1000
-    velocities = stokes_velocity(gravity_list,
-                                 dens_contrast,
-                                 particle_diam,
-                                 dynamic_visc)
-    settling_times = settling_time(settling_disp_m, velocities)
-    settling_times_mins = settling_times/60.0
-    return [total_radius/1000, core_radius/1000, core_radii_km, core_radii_km, mass_list, gravity_list, gravity_core, velocities, settling_times, settling_times_mins]
+    return {"Core radii": core_radii_km,
+            "Radii": radii_in_km,
+            "Mass list": mass_list,
+            "Grav list": gravity_list,
+            "Gravity core": gravity_core}
 
 
 def all_in_one(total_radius_km,
